@@ -82,6 +82,11 @@ JSON Support has been added and supports the following data format...
  }
  ]
 
- This data can be extracted from quite simply from the Facebook graph API.
+ This data can be extracted from quite simply from the Facebook graph API (i.e. Groups)
 
- http://www.json-xls.com/how-to-export-facebook-group-members-to-excel
+http://www.json-xls.com/how-to-export-facebook-group-members-to-excel
+https://developers.facebook.com/tools/explorer
+
+This data should be saved to a file. The the process can use this data with the following command.
+
+./bnp --json /path/to/data.json
