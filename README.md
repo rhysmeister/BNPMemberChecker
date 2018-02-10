@@ -87,6 +87,6 @@ JSON Support has been added and supports the following data format...
 http://www.json-xls.com/how-to-export-facebook-group-members-to-excel
 https://developers.facebook.com/tools/explorer
 
-This data should be saved to a file. The the process can use this data with the following command.
+This data should be saved to a file. Then the process can use this data with the following command.
 
 ./bnp --json /path/to/data.json
