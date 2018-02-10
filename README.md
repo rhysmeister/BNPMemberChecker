@@ -3,7 +3,7 @@ A simple tool to check as list of names against a leaked list of BNP Members
 
 # Description
 
-This is a simple took to check a text file of names against a MySQL database containing the names of BNP Members.
+This is a simple tool to check a text file of names against a MySQL database containing the names of BNP Members.
 
 The BNP or British National Party, is a right-wing facist organisation.
 
