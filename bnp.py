@@ -1,59 +1,90 @@
 import pymysql.cursors, json, argparse
-
+from tabulate import tabulate
 
 count=0
 set_of_last_names = set()
 
 parser = argparse.ArgumentParser(description='Check a text file against a database of BNP Members.')
 parser.add_argument('--file', type=str, default="members.txt", help='The list of BNP Members. Should be one name per line. Format is assumed to be <first_name> <middle name> <last name>. Middle names is optional and is ignored in the check. If an extact match is not found we perform an initial check with the first name and last name. This is indicated in the output')
-parser.add_argument('--host', type=str, default="localhost")
-parser.add_argument('--username', type=str, default="root")
-parser.add_argument('--password', type=str, default="secret")
-parser.add_argument('--db', type=str, default="bnp")
-parser.add_argument('--table', type=str, default="members")
+parser.add_argument('--host', type=str, default="localhost", help="MySQL hostname")
+parser.add_argument('--username', type=str, default="root", help="MySQL username")
+parser.add_argument('--password', type=str, default="secret", help="MySQL password")
+parser.add_argument('--db', type=str, default="bnp", help="MySQL Database")
+parser.add_argument('--table', type=str, default="members", help="MySQL table")
+parser.add_argument('--tablefmt', type=str, default="simple", help="Output table format")
+parser.add_argument('--fulltext', action='store_true', default=False, help="Perform an additional fulltext search on the dataset")
+parser.add_argument('--text', type=str, default="resigned", help="Text to use with the fulltext search feature. Useful for adhoc searching of the dataset.")
+
 args = parser.parse_args()
 
 # Connect to the database
 connection = pymysql.connect(host=args.host,
-                             user=args.username,
-                             password=args.password,
-                             db=args.db,
-                             charset='utf8mb4',
-                             cursorclass=pymysql.cursors.DictCursor)
+							 user=args.username,
+							 password=args.password,
+							 db=args.db,
+							 charset='utf8mb4',
+							 cursorclass=pymysql.cursors.DictCursor)
+result = []
+table_formats = [ "plain",
+				  "simple",
+				  "grid",
+				  "fancy_grid",
+				  "pipe",
+				  "orgtbl",
+				  "jira",
+				  "presto",
+				  "psql",
+				  "rst",
+				  "mediawiki",
+				  "moinmoin",
+				  "youtrack",
+				  "html",
+				  "latex",
+				  "latex_raw",
+				  "latex_booktabs",
+				  "textile" ]
 
 try:
 
-
-
-    with connection.cursor() as cursor:
-	fp = open(args.file, 'r')
-	line = fp.readline()
-	while line:
-		try:
-			first_name, last_name = line.strip().split(" ")
-		except ValueError as excep:
-			# Try again with middle name
-			try:
-				first_name, middle_name, last_name = line.strip().split(" ")
-			except ValueError as excep:
-				print("ValueError on {0}".format(line))
-        	# Read a single record
-		set_of_last_names.add(last_name.replace("'", "\\'"))
-        	sql = "SELECT * FROM {0} WHERE `first_name`=%s AND last_name=%s".format(args.table)
-        	cursor.execute(sql, (first_name, last_name))
-		result = cursor.fetchone()
-		# Try First Initial
-		if result is None:
-			initial = first_name[0]
-                	sql = "SELECT * FROM {0} WHERE first_name = '{1}.' AND CHAR_LENGTH(first_name) <=2 AND last_name='{2}'".format(args.table, initial, last_name.replace("'", "\\'"))
-                	cursor.execute(sql)
-                	result = cursor.fetchone()
-		count += 1
-		if count % 10 == 0:
-			print("Processed {0} rows".format(count));
-		if result is not None:
-        		print(result)
+	with connection.cursor() as cursor:
+		fp = open(args.file, 'r')
 		line = fp.readline()
-
+		while line:
+			try:
+				first_name, last_name = line.strip().split(" ")
+			except ValueError as excep:
+				# Try again with middle name
+				try:
+					first_name, middle_name, last_name = line.strip().split(" ")
+				except ValueError as excep:
+					print("ValueError on {0}".format(line))
+				# Read a single record
+			last_name = last_name.replace("'", "\\'")
+			sql = "SELECT *, 'exact' AS match_type, '{0} {1}' AS check_data FROM {2} WHERE `first_name`=%s AND last_name=%s".format(first_name, last_name, args.table)
+			cursor.execute(sql, (first_name, last_name))
+			# Try First Initial if no match
+			if cursor.rowcount > 0:
+				result += cursor.fetchall()
+			else:
+				initial = first_name[0]
+				sql = "SELECT *, 'initial' AS match_type, '{0} {1}' AS check_data FROM {2} WHERE first_name = '{3}.' AND CHAR_LENGTH(first_name) <=2 AND last_name='{4}'".format(initial, last_name, args.table, initial, last_name)
+				cursor.execute(sql)
+				result += cursor.fetchall()
+			count += 1
+			if count % 10 == 0:
+				print("Processed {0} rows".format(count));
+			line = fp.readline()
+		if args.fulltext:
+			sql = "SELECT *, 'fulltext' AS match_type, '{0}' AS check_data, MATCH(first_name, last_name, other) AGAINST ('{1}' IN NATURAL LANGUAGE MODE) AS score FROM {2} ORDER BY score DESC LIMIT 1".format(args.text, args.text, args.table)
+			cursor.execute(sql)
+			result += cursor.fetchall()
 finally:
-    connection.close()
+	connection.close()
+
+if result is not None:
+	headers = {}
+	for item in result[0].keys():
+		headers[item] = item
+	print(tabulate(result, headers, tablefmt=args.tablefmt))
+else:
+	print("No matches found in {0}".format(args.file))
