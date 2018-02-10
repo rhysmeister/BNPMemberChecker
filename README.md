@@ -60,3 +60,28 @@ For fulltext feature...
    --text TEXT          Text to use with the fulltext search feature. Useful
                         for adhoc searching of the dataset.
 ```
+# JSON Support
+
+JSON Support has been added and supports the following data format...
+
+[
+ {
+   "name": "Dr Who",
+   "id": "123456",
+   "administrator": false
+ },
+ {
+   "name": "Betty Boo",
+   "id": "654321",
+   "administrator": false
+ },
+ {
+   "name": "Joe Bloggs",
+   "id": "123450",
+   "administrator": false
+ }
+ ]
+
+ This data can be extracted from quite simply from the Facebook graph API.
+
+ http://www.json-xls.com/how-to-export-facebook-group-members-to-excel

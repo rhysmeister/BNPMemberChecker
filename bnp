@@ -1,9 +1,9 @@
 #!/usr/bin/python
-import pymysql.cursors, json, argparse
+import pymysql.cursors, json, argparse, random, string, os
 from tabulate import tabulate
 
 count=0
-set_of_last_names = set()
+temp_file = None
 
 parser = argparse.ArgumentParser(description='Check a text file against a database of BNP Members. If you only have one name then check manually. This tool will never be as good as a human at matching names.')
 parser.add_argument('--file', type=str, default="members.txt", help='The list of names to check against the BNP dataset. Should be one name per line. Format is assumed to be <first_name> <middle name> <last name>. Middle names is optional and is ignored in the check. If an extact match is not found we perform an initial check with the first name and last name. This is indicated in the output')
@@ -15,7 +15,8 @@ parser.add_argument('--table', type=str, default="members", help="MySQL table")
 parser.add_argument('--tablefmt', type=str, default="simple", help="Output table format")
 parser.add_argument('--fulltext', action='store_true', default=False, help="Perform an additional fulltext search on the dataset")
 parser.add_argument('--text', type=str, default="resigned", help="Text to use with the fulltext search feature. Useful for adhoc searching of the dataset.")
-
+parser.add_argument('--json', type=str, help="JSON file containing a list of dictionaries to check against the BNP member database. See README for format details.")
+parser.add_argument('--debug', action='store_true', default=False, help="Output debugging information")
 args = parser.parse_args()
 
 # Connect to the database
@@ -23,7 +24,6 @@ connection = pymysql.connect(host=args.host,
 							 user=args.username,
 							 password=args.password,
 							 db=args.db,
-							 charset='utf8mb4',
 							 cursorclass=pymysql.cursors.DictCursor)
 result = []
 table_formats = [ "plain",
@@ -45,7 +45,26 @@ table_formats = [ "plain",
 				  "latex_booktabs",
 				  "textile" ]
 
+def randomword(length):
+   return ''.join(random.choice(string.lowercase) for i in range(length))
+
+def generate_list_from_json(json_file, temp_file):
+	data = json.load(open(json_file))
+	for dictionary in data:
+		try:
+			with open(temp_file, "a") as myfile:
+				myfile.write(dictionary["name"].encode('utf-8').strip() + "\n")
+		except Exception as excep:
+			if args.debug:
+				print("Current dictionary: {0}".format(dicitonary))
+			raise excep
+
 try:
+
+	if args.json is not None:
+		temp_file = "/tmp/bnp_temp_{0}".format(randomword(10))
+		generate_list_from_json(args.json, temp_file)
+		args.file = temp_file
 
 	with connection.cursor() as cursor:
 		fp = open(args.file, 'r')
@@ -80,7 +99,11 @@ try:
 			cursor.execute(sql)
 			result += cursor.fetchall()
 finally:
+	# Clean up
 	connection.close()
+	if temp_file is not None:
+		pass
+		#os.remove(temp_file)
 
 if result is not None:
 	headers = {}
