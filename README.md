@@ -33,32 +33,37 @@ For fulltext feature...
 ```
  # Usage
 ```
- usage: bnp [-h] [--file FILE] [--host HOST] [--username USERNAME]
-            [--password PASSWORD] [--db DB] [--table TABLE]
-            [--tablefmt TABLEFMT] [--fulltext] [--text TEXT]
+usage: bnp [-h] [--file FILE] [--host HOST] [--username USERNAME]
+           [--password PASSWORD] [--db DB] [--table TABLE]
+           [--tablefmt TABLEFMT] [--fulltext] [--text TEXT] [--json JSON]
+           [--debug]
 
- Check a text file against a database of BNP Members. If you only have one name
- then check manually. This tool will never be as good as a human at matching
- names.
+Check a text file against a database of BNP Members. If you only have one name
+then check manually. This tool will never be as good as a human at matching
+names.
 
- optional arguments:
-   -h, --help           show this help message and exit
-   --file FILE          The list of names to check against the BNP dataset.
-                        Should be one name per line. Format is assumed to be
-                        <first_name> <middle name> <last name>. Middle names is
-                        optional and is ignored in the check. If an extact
-                        match is not found we perform an initial check with the
-                        first name and last name. This is indicated in the
-                        output
-   --host HOST          MySQL hostname
-   --username USERNAME  MySQL username
-   --password PASSWORD  MySQL password
-   --db DB              MySQL database
-   --table TABLE        MySQL table
-   --tablefmt TABLEFMT  Output table format
-   --fulltext           Perform an additional fulltext search on the dataset
-   --text TEXT          Text to use with the fulltext search feature. Useful
-                        for adhoc searching of the dataset.
+optional arguments:
+  -h, --help           show this help message and exit
+  --file FILE          The list of names to check against the BNP dataset.
+                       Should be one name per line. Format is assumed to be
+                       <first_name> <middle name> <last name>. Middle names is
+                       optional and is ignored in the check. If an extact
+                       match is not found we perform an initial check with the
+                       first name and last name. This is indicated in the
+                       output
+  --host HOST          MySQL hostname
+  --username USERNAME  MySQL username
+  --password PASSWORD  MySQL password
+  --db DB              MySQL database
+  --table TABLE        MySQL table
+  --tablefmt TABLEFMT  Output table format
+  --fulltext           Perform an additional fulltext search on the dataset
+  --text TEXT          Text to use with the fulltext search feature. Useful
+                       for adhoc searching of the dataset.
+  --json JSON          JSON file containing a list of dictionaries to check
+                       against the BNP member database. See README for format
+                       details.
+  --debug              Output debugging information
 ```
 # JSON Support
 
