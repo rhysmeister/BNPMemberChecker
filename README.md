@@ -22,10 +22,41 @@ About the BNP https://en.wikipedia.org/wiki/British_National_Party
 
 # Additional
 
-You may wqish to create some indexes on the database to improve performance.
+You may wish to create some indexes on the database to improve performance.
 
+```
 CREATE INDEX idx_fn_ln ON members (first_name(100), last_name(100));
-
+```
 For fulltext feature...
-
+```
  CREATE FULLTEXT INDEX idx_ft ON bnp.members (first_name, last_name, other);
+```
+ # Usage
+```
+ usage: bnp [-h] [--file FILE] [--host HOST] [--username USERNAME]
+            [--password PASSWORD] [--db DB] [--table TABLE]
+            [--tablefmt TABLEFMT] [--fulltext] [--text TEXT]
+
+ Check a text file against a database of BNP Members. If you only have one name
+ then check manually. This tool will never be as good as a human at matching
+ names.
+
+ optional arguments:
+   -h, --help           show this help message and exit
+   --file FILE          The list of names to check against the BNP dataset.
+                        Should be one name per line. Format is assumed to be
+                        <first_name> <middle name> <last name>. Middle names is
+                        optional and is ignored in the check. If an extact
+                        match is not found we perform an initial check with the
+                        first name and last name. This is indicated in the
+                        output
+   --host HOST          MySQL hostname
+   --username USERNAME  MySQL username
+   --password PASSWORD  MySQL password
+   --db DB              MySQL database
+   --table TABLE        MySQL table
+   --tablefmt TABLEFMT  Output table format
+   --fulltext           Perform an additional fulltext search on the dataset
+   --text TEXT          Text to use with the fulltext search feature. Useful
+                        for adhoc searching of the dataset.
+```

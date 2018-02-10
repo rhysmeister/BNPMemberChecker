@@ -1,15 +1,16 @@
+#!/usr/bin/python
 import pymysql.cursors, json, argparse
 from tabulate import tabulate
 
 count=0
 set_of_last_names = set()
 
-parser = argparse.ArgumentParser(description='Check a text file against a database of BNP Members.')
-parser.add_argument('--file', type=str, default="members.txt", help='The list of BNP Members. Should be one name per line. Format is assumed to be <first_name> <middle name> <last name>. Middle names is optional and is ignored in the check. If an extact match is not found we perform an initial check with the first name and last name. This is indicated in the output')
+parser = argparse.ArgumentParser(description='Check a text file against a database of BNP Members. If you only have one name then check manually. This tool will never be as good as a human at matching names.')
+parser.add_argument('--file', type=str, default="members.txt", help='The list of names to check against the BNP dataset. Should be one name per line. Format is assumed to be <first_name> <middle name> <last name>. Middle names is optional and is ignored in the check. If an extact match is not found we perform an initial check with the first name and last name. This is indicated in the output')
 parser.add_argument('--host', type=str, default="localhost", help="MySQL hostname")
 parser.add_argument('--username', type=str, default="root", help="MySQL username")
 parser.add_argument('--password', type=str, default="secret", help="MySQL password")
-parser.add_argument('--db', type=str, default="bnp", help="MySQL Database")
+parser.add_argument('--db', type=str, default="bnp", help="MySQL database")
 parser.add_argument('--table', type=str, default="members", help="MySQL table")
 parser.add_argument('--tablefmt', type=str, default="simple", help="Output table format")
 parser.add_argument('--fulltext', action='store_true', default=False, help="Perform an additional fulltext search on the dataset")
