@@ -77,7 +77,10 @@ try:
 				try:
 					first_name, middle_name, last_name = line.strip().split(" ")
 				except ValueError as excep:
-					print("ValueError on {0}".format(line))
+					try:
+						first_name, middle_name1, middle_name2, last_name = line.strip().split(" ")
+					except ValueError as excep:
+						print("ValueError on {0}".format(line))
 				# Read a single record
 			last_name = last_name.replace("'", "\\'")
 			sql = "SELECT *, 'exact' AS match_type, '{0} {1}' AS check_data FROM {2} WHERE `first_name`=%s AND last_name=%s".format(first_name, last_name, args.table)
