@@ -46,11 +46,11 @@ optional arguments:
   -h, --help           show this help message and exit
   --file FILE          The list of names to check against the BNP dataset.
                        Should be one name per line. Format is assumed to be
-                       <first_name> <middle name> <last name>. Middle names is
-                       optional and is ignored in the check. If an extact
-                       match is not found we perform an initial check with the
-                       first name and last name. This is indicated in the
-                       output
+                       <first_name> <middle name 1> <middle name 2> <last
+                       name>. Middle names are optional and are ignored in the
+                       check. If an extact match is not found we perform an
+                       initial check with the first name and last name. This
+                       is indicated in the output
   --host HOST          MySQL hostname
   --username USERNAME  MySQL username
   --password PASSWORD  MySQL password
